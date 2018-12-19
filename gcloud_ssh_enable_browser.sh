@@ -42,7 +42,7 @@ fw_rule_name=${fw_rule_name_rough//[^-a-z0-9]/}
 
 #Define Source ips, Google SPF IP Range + gcloud Shell External IP
 
-src_ip=`nslookup -q=TXT _spf.google.com| tr ' ' '\n'|grep include|cut -d : -f2|xargs -i nslookup -q=TXT {}|tr ' ' '\n'|grep ip4|cut -d: -f2|tr '\n' `
+src_ip=`nslookup -q=TXT _spf.google.com| tr ' ' '\n'|grep include|cut -d : -f2|xargs -i nslookup -q=TXT {}|tr ' ' '\n'|grep ip4|cut -d: -f2
 
 #Aloha
 echo "Welcome to gcloud_ssh_enable v1.2  ...working for you..."
