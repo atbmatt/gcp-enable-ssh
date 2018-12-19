@@ -30,7 +30,7 @@ fw_net=$1
 #Extra optional CSV IP list
 if [ -z ${2+x} ];
   then extra_ip_csv_file='';
-else extra_ip_csv_file=','`cat $2`;
+else extra_ip_csv_file=`cat $2`;
 fi
 
 #Firewall Rules to allow
