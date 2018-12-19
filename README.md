@@ -18,7 +18,7 @@ In google cloud console shell, upload/copy the script.
 
 You may have to first grant the script execution priveleges with `sudo chmod +x gcloud_ssh_enable.sh`.
 
-Run `./gcloud_ssh_enable.sh <your-vpc-network-name>`.
+Run `./gcloud_ssh_enable.sh <your-vpc-network-name> <optional-csv-file-with-extra-ips>`.
 
 
 ## More Info:
