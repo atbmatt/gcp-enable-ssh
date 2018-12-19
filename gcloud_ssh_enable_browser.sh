@@ -40,9 +40,9 @@ fw_rule_name_rough=${fw_rule_name_prefix}"-"${fw_net}
 #Build Firewall rule name and filter out characters not allowed in a FW rule name
 fw_rule_name=${fw_rule_name_rough//[^-a-z0-9]/}
 
-#Define Source ips, Google SPF IP Range + gcloud Shell External IP
+#Define Source ips, Google SPF IP Range
 
-src_ip=`nslookup -q=TXT _spf.google.com| tr ' ' '\n'|grep include|cut -d : -f2|xargs -i nslookup -q=TXT {}|tr ' ' '\n'|grep ip4|cut -d: -f2`
+src_ip=`nslookup -q=TXT _spf.google.com| tr ' ' '\n'|grep include|cut -d : -f2|xargs -i nslookup -q=TXT {}|tr ' ' '\n'|grep ip4|cut -d: -f2|tr '\n' ','`
 
 #Aloha
 echo "Welcome to gcloud_ssh_enable v1.2  ...working for you..."
@@ -51,13 +51,13 @@ if [[ $(gcloud compute firewall-rules list --format=list --filter name=${fw_rule
     echo "Updating FW Rule $fw_rule_name"
     echo "Adding IP's $src_ip"
     #Update Dynamic Google Cloud Shell FW Rule 
-    gcloud compute firewall-rules update $fw_rule_name --source-ranges=$src_ip
+    gcloud compute firewall-rules update $fw_rule_name --source-ranges=${src_ip::-1}
 
 else
     echo "Creating FW Rule $fw_rule_name"
     echo "Adding IP's $src_ip"
     #Create Dynamic Google Cloud Shell FW - Rule Run Once
     gcloud compute firewall-rules create $fw_rule_name --description=Dyn-SSH-FW \
-    --direction=INGRESS --priority=1000 --network=$fw_net --action=ALLOW --rules=$fw_rules --source-ranges=$src_ip
+    --direction=INGRESS --priority=1000 --network=$fw_net --action=ALLOW --rules=$fw_rules --source-ranges=${src_ip::-1}
 
 fi
