@@ -27,6 +27,12 @@
 #Define FW Network/VPC name (Don't use default network)
 fw_net=$1
 
+#Extra optional CSV IP list
+if [ -z ${2+x} ];
+  then extra_ip_csv_file='';
+else extra_ip_csv_file=','`cat $2`;
+fi
+
 #Firewall Rules to allow
 fw_rules="tcp:22"
 
@@ -48,18 +54,20 @@ fw_rule_name=${fw_rule_name_rough//[^-a-z0-9]/}
 
 #Define Source ips, Google SPF IP Range + gcloud Shell External IP
 
-src_ip=`nslookup -q=TXT _spf.google.com| tr ' ' '\n'|grep include|cut -d : -f2|xargs -i nslookup -q=TXT {}|tr ' ' '\n'|grep ip4|cut -d: -f2|tr '\n' ','`$DEVSHELL_IP_ADDRESS
+src_ip=`nslookup -q=TXT _spf.google.com| tr ' ' '\n'|grep include|cut -d : -f2|xargs -i nslookup -q=TXT {}|tr ' ' '\n'|grep ip4|cut -d: -f2|tr '\n' ','`$DEVSHELL_IP_ADDRESS$extra_ip_csv_file
 
 #Aloha
 echo "Welcome to gcloud_ssh_enable v1.2  ...working for you..."
 
 if [[ $(gcloud compute firewall-rules list --format=list --filter name=${fw_rule_name}|wc -c) -ne 0 ]]; then
     echo "Updating FW Rule $fw_rule_name"
+    echo "Adding IP's $src_ip"
     #Update Dynamic Google Cloud Shell FW Rule 
     gcloud compute firewall-rules update $fw_rule_name --source-ranges=$src_ip
 
 else
     echo "Creating FW Rule $fw_rule_name"
+    echo "Adding IP's $src_ip"
     #Create Dynamic Google Cloud Shell FW - Rule Run Once
     gcloud compute firewall-rules create $fw_rule_name --description=Dyn-SSH-FW \
     --direction=INGRESS --priority=1000 --network=$fw_net --action=ALLOW --rules=$fw_rules --source-ranges=$src_ip
